@@ -12,6 +12,7 @@ use Magento\Catalog\Model\Category;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Search\Model\Query;
@@ -565,7 +566,7 @@ class Data
 
         $this->logger->start('START EMULATION');
 
-        $this->emulation->startEnvironmentEmulation($storeId);
+        $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
         $this->emulationRuns = true;
 
         $this->logger->stop('START EMULATION');
