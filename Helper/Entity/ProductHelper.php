@@ -14,6 +14,8 @@ use Algolia\AlgoliaSearch\Helper\ConfigHelper;
 use Algolia\AlgoliaSearch\Helper\Logger;
 use Magento\Catalog\Helper\Data as CatalogHelper;
 use Magento\Catalog\Model\Product\Visibility;
+use Magento\Catalog\Model\Product\Type;
+use Magento\Catalog\Model\Product\Type\AbstractType;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Magento\CatalogInventory\Helper\Stock;
 use Magento\CatalogRule\Model\ResourceModel\Rule;
@@ -33,6 +35,16 @@ class ProductHelper extends BaseHelper
      * @var Image $imageHelper
      */
     protected $imageHelper;
+
+    /**
+     * @var Type
+     */
+    private $productType;
+
+    /**
+     * @var AbstractType[]
+     */
+    private $compositeTypes;
 
     protected static $_productAttributes;
     protected static $_currencies;
@@ -79,13 +91,15 @@ class ProductHelper extends BaseHelper
         FilterProvider $filterProvider,
         PriceCurrencyInterface $priceCurrency,
         Rule $rule,
-        ConfigCache $cache
+        ConfigCache $cache,
+        Type $productType
     ) {
         parent::__construct($eavConfig, $configHelper, $algoliaHelper, $logger, $storeManager,
             $eventManager, $visibility, $stock, $taxHelper, $stockRegistry, $currencyDirectory,
             $currencyHelper, $objectManager, $catalogHelper, $queryResource, $currencyManager,
             $filterProvider, $priceCurrency, $rule, $cache);
 
+        $this->productType = $productType;
         $this->imageHelper = $this->objectManager->create(
             'Algolia\AlgoliaSearch\Helper\Image',
             [
@@ -557,6 +571,42 @@ class ProductHelper extends BaseHelper
                 }
             }
         }
+    }
+
+    /**
+     * Returns all parent product IDs, e.g. when simple product is part of configurable or bundle
+     *
+     * @param array $productIds
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getParentProductIds(array $productIds)
+    {
+        $parentIds = [];
+        foreach ($this->getCompositeTypes() as $typeInstance) {
+            $parentIds = array_merge($parentIds, $typeInstance->getParentIdsByChild($productIds));
+        }
+
+        return $parentIds;
+    }
+
+    /**
+     * Returns composite product type instances
+     *
+     * @return AbstractType[]
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @see \Magento\Catalog\Model\Indexer\Product\Flat\AbstractAction::_getProductTypeInstances
+     */
+    private function getCompositeTypes()
+    {
+        if (null === $this->compositeTypes) {
+            $productEmulator = new \Magento\Framework\DataObject();
+            foreach ($this->productType->getCompositeTypes() as $typeId) {
+                $productEmulator->setTypeId($typeId);
+                $this->compositeTypes[$typeId] = $this->productType->factory($productEmulator);
+            }
+        }
+        return $this->compositeTypes;
     }
 
     public function getAllCategories($categoryIds)
