@@ -1,4 +1,4 @@
-requirejs(['algoliaBundle'], function(algoliaBundle) {
+requirejs(['algoliaBundle', 'transformHit'], function(algoliaBundle, transformHit) {
 	algoliaBundle.$(function ($) {
 		
 		/** We have nothing to do here if instantsearch is not enabled **/

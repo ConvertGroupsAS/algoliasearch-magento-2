@@ -1,15 +1,11 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <script src="Algolia_AlgoliaSearch::internals/common.js"/>
-
-        <script src="Algolia_AlgoliaSearch::instantsearch.js"/>
-        <script src="Algolia_AlgoliaSearch::autocomplete.js"/>
-
         <css src="Algolia_AlgoliaSearch::internals/algoliasearch.css" />
     </head>
     <body>
         <referenceBlock name="head.additional">
+            <block class="Magento\Framework\View\Element\Template" name="algolia.initialload" template="Algolia_AlgoliaSearch::initialload.phtml"/>
             <block class="Algolia\AlgoliaSearch\Block\Configuration" name="algolia.internals.configuration" template="Algolia_AlgoliaSearch::internals/configuration.phtml"/>
         </referenceBlock>
 
