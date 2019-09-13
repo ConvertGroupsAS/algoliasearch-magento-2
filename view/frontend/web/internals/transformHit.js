@@ -6,7 +6,7 @@ define(function () {
             hit.categories = hit.categories.join(', ');
 
         if (hit._highlightResult.categories_without_path && Array.isArray(hit.categories_without_path)) {
-            hit.categories_without_path = $.map(hit._highlightResult.categories_without_path, function (category) {
+            hit.categories_without_path = hit._highlightResult.categories_without_path.map(function (category) {
                 return category.value;
             });
 
@@ -28,7 +28,7 @@ define(function () {
         if (Array.isArray(hit.color)) {
             var colors = [];
 
-            $.each(hit._highlightResult.color, function (i, color) {
+            hit._highlightResult.color.forEach(function (color) {
                 if (color.matchLevel === 'none') {
                     return;
                 }
@@ -60,7 +60,7 @@ define(function () {
         }
 
         if (algoliaConfig.useAdaptiveImage === true) {
-            $.each(matchedColors, function (i, color) {
+            matchedColors.forEach(function (color) {
                 color = color.toLowerCase();
 
                 if (hit.images_data[color]) {
